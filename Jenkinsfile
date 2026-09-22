@@ -2,9 +2,11 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME = 'week09-app'
-        APP_VERSION = 'v1'
-    }
+    APP_NAME = 'week09-app'
+    APP_VERSION = 'v1'
+    DOCKERHUB_USERNAME = 'dilharadockerhub'
+    DOCKER_IMAGE = "${DOCKERHUB_USERNAME}/${APP_NAME}:${APP_VERSION}"
+}
 
     stages {
         stage('Checkout') {
@@ -34,6 +36,25 @@ pipeline {
                 sh 'docker build -t ${APP_NAME}:${APP_VERSION} .'
             }
         }
+
+        stage('Push to Docker Hub') {
+            steps {
+                echo 'Pushing Docker image to Docker Hub...'
+
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_TOKEN'
+                )]) {
+                    sh '''
+                        echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker tag ${APP_NAME}:${APP_VERSION} ${DOCKER_IMAGE}
+                        docker push ${DOCKER_IMAGE}
+                        docker logout
+                    '''
+                }
+            }
+        }
     }
 
     post {
@@ -45,4 +66,4 @@ pipeline {
             echo 'Week 09 CI pipeline failed.'
         }
     }
-}
+} 
