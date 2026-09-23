@@ -3,7 +3,7 @@ pipeline {
 
     environment {
     APP_NAME = 'week09-app'
-    APP_VERSION = 'v1'
+    APP_VERSION = 'v2'
     DOCKERHUB_USERNAME = 'dilharadockerhub'
     DOCKER_IMAGE = "${DOCKERHUB_USERNAME}/${APP_NAME}:${APP_VERSION}"
 }
